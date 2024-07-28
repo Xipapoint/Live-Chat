@@ -1,0 +1,18 @@
+.block{
+    display: flex;
+    .avatar{
+        width: 30px;
+        height: 30px;
+    }
+    .content{
+        display: flex;
+        flex-direction: column;
+        .info{
+            display: flex;
+            justify-content: space-between;
+        }
+        .text{
+            display: flex;
+        }
+    }
+}

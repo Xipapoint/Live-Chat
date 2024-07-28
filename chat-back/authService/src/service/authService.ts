@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import { ITokenServiceImpl } from './impl/tokenService.impl';
 import TokenService from './tokenService';
 import { ISecureRegisterResponseDTO } from '../dto/response/SecureRegisterResponseDTO';
+import tokenService from './tokenService';
 
 class AuthService implements IAuthServiceImpl {
     private tokenService: ITokenServiceImpl;
@@ -61,6 +62,30 @@ class AuthService implements IAuthServiceImpl {
             throw new Error("User doesn't exist");
         }
         return existingUser._id.toString();
+    }
+
+    async refresh(refreshToken: string) {
+        if (!refreshToken) {
+            throw new Error("Unathorized");
+        }
+
+        const userData = tokenService.verifyRefreshToken(refreshToken);
+        const tokenFromDb = await tokenService.findToken(refreshToken);
+
+        if (!userData || !tokenFromDb) {
+            throw new Error("Unathorized");;
+        }
+
+        const user = await User.findById((await userData).id);
+        if (!user) {
+            throw new Error("Unathorized");;
+        }
+        const id = user._id.toString();
+
+        const tokens = tokenService.generateTokens(id);
+
+        await tokenService.saveToken(id, tokens.refreshToken);
+        return { ...tokens };
     }
 }
 

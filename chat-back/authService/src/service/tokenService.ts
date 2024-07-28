@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { ITokenServiceImpl } from "./impl/tokenService.impl";
 import { IJwtUserResponseDto } from "../dto/response/JwtUserResponseDTO.dto";
 import Token, { IToken } from "../models/tokenModel";
+import { CustomJwtPayload } from "./interfaces/jwt";
 
 class tokenService implements ITokenServiceImpl {
     private jwt: typeof jwt;
@@ -43,17 +44,20 @@ class tokenService implements ITokenServiceImpl {
         }
     }
 
-    public async verifyAccessToken(token: string): Promise<JwtPayload | null> {
+    public async verifyAccessToken(token: string): Promise<CustomJwtPayload | null> {
         try {
-            const userData = this.jwt.verify(token, process.env.JWT_ACCESS_SECRET as string) as JwtPayload;
+            const userData = this.jwt.verify(token, process.env.JWT_ACCESS_SECRET as string) as CustomJwtPayload;
             return userData;
         } catch (e) {
             return null;
         }
     }
 
-    public async verifyRefreshToken(token: string): Promise<JwtPayload> {
-        return this.jwt.verify(token, process.env.JWT_REFRESH_SECRET as string) as JwtPayload;
+    public async verifyRefreshToken(token: string): Promise<CustomJwtPayload> {
+        return this.jwt.verify(token, process.env.JWT_REFRESH_SECRET as string) as CustomJwtPayload;
+    }
+    async findToken(refreshToken: string) {
+        return Token.findOne({ refreshToken });
     }
 }
 

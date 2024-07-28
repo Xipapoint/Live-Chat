@@ -4,3 +4,4 @@ import AuthController from "../controllers/authController";
 export const authRouter = Router();
 
 authRouter.post('/register', AuthController.registration)
+authRouter.post('/refresh', AuthController.refresh)

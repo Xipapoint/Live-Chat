@@ -5,7 +5,7 @@ interface IRoom extends Document {
   _id: Types.ObjectId; 
   roomFirstName: string;
   roomLastName: string;
-  users: Types.ObjectId[];
+  users: string[];
   messages: IMessage[]; 
 }
 

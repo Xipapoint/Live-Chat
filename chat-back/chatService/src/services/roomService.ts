@@ -9,7 +9,7 @@ class ChatService{
         const testId = roomData.userId 
         const data = {firstName: roomData.firstName, lastName: roomData.lastName}
         const testSecondId = await producer.publishMessage(data) // отправить запрос в rabbit
-        const newRoom = new Room({roomFirstName: roomData.firstName, roomLastName: roomData.lastName, users: [{_id: testId, secondId: testSecondId}]})
+        const newRoom = new Room({roomFirstName: roomData.firstName, roomLastName: roomData.lastName, users: [{_id: testId}, {_id: testSecondId}]})
         await newRoom.save()
         return newRoom;
     }
@@ -24,7 +24,18 @@ class ChatService{
     }
 
     async getAllRooms(userId: string): Promise<IRoom[]>{
-        const allRooms: IRoom[] | null = await Room.find({users: {secondId: userId}})
+        console.log("зашли");
+        const allRooms: IRoom[] = await Room.find({ users: { $in: [userId] } });
+        console.log(allRooms);
+        
+        if(allRooms === null){
+            console.log("Rooms with this person dont exist");
+            throw new Error("Rooms with this person dont exist")
+        }
+        console.log(allRooms);
+        
         return allRooms
     }
 }
+
+export default new ChatService();
