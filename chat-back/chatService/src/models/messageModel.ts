@@ -3,7 +3,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 interface IMessage extends Document {
   user: Types.ObjectId; 
   message: string;
-  timestamp: Date;
+  timestamp: Date | ' ';
 }
 
 const messageSchema = new Schema<IMessage>({

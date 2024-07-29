@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import ChatBlock from './ChatBlock';
+import ChatCard from './card/ChatCard';
 import styles from './ChatList.module.scss';
 import $chat_api from '../../../http/chat';
 import { IChatInterface } from '../../../models/chat/chat.interface';
@@ -33,13 +33,13 @@ const ChatList = () => {
   return (
     <div className={styles.chatList}>
       {chatList?.map(chat => (
-        <ChatBlock
-          key={chat._id} // Ensure each chat has a unique id
+        <ChatCard
+          key={chat.firstName + chat.lastName} // Ensure each chat has a unique id
           avatarUrl={chat.avatarUrl}
-          firstName={chat.roomFirstName}
-          lastName={chat.roomLastName}
-          date={chat.date}
-          message={chat.message}
+          firstName={chat.firstName}
+          lastName={chat.lastName}
+          date={chat.lastMessageTime}
+          message={chat.lastMessageText}
         />
       ))}
     </div>

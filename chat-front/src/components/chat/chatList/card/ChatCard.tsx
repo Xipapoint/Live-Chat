@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './ChatBlock.module.scss';
+import styles from './ChatCard.module.scss';
 
-interface ChatBlockProps{
+interface ChatCardProps{
     avatarUrl: string,
     firstName: string,
     lastName: string,
@@ -9,14 +9,14 @@ interface ChatBlockProps{
     message: string
 }
 
-const ChatBlock: React.FC<ChatBlockProps> = ({ avatarUrl, firstName, lastName, date, message }) => {
+const ChatCard: React.FC<ChatCardProps> = ({ avatarUrl, firstName, lastName, date, message }) => {
   return (
-    <div className={styles.block}>
+    <div className={styles.card}>
       <img src={avatarUrl} alt={`${firstName} ${lastName}`} className={styles.avatar} />
       <div className={styles.content}>
         <div className={styles.info}>
           <h3>{`${firstName} ${lastName}`}</h3>
-          <p>{new Date(date).toLocaleString()}</p>
+          <p>{date}</p>
         </div>
         <div className={styles.text}>
           <p>{message}</p>
@@ -26,4 +26,4 @@ const ChatBlock: React.FC<ChatBlockProps> = ({ avatarUrl, firstName, lastName, d
   );
 };
 
-export default ChatBlock;
+export default ChatCard;

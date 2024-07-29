@@ -1,5 +1,7 @@
-.block{
+.card{
     display: flex;
+    border-bottom: 1px solid gray;
+    align-items: center;
     .avatar{
         width: 30px;
         height: 30px;
