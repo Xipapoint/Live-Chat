@@ -1,0 +1,28 @@
+.chat{
+    background-color: #FFFF;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px; // Optional: for some padding around messages
+      }
+    
+      .messageInput {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc; // Optional: for a border at the top of the input area
+        
+        .input{
+          height: 30px;
+            width: 100%;
+        }
+        input{
+            outline: none;
+            border: none;
+        }
+        
+      }
+}

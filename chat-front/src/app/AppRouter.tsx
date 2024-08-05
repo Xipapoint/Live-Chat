@@ -1,9 +1,10 @@
 
 import {Navigate, Route, Routes} from 'react-router-dom';
 import { privateRoutes, publicRoutes } from './router';
+// import { useAppSelector } from '../shared/hooks/redux';
 
 const AppRouter = () => {
-    const auth:boolean = false
+    const auth = localStorage.getItem('auth')
     return (
         auth
             ?
@@ -13,7 +14,7 @@ const AppRouter = () => {
                            element={<route.component/>}
                            key={route.path} />))}
                 <Route path="*"
-                       element={<Navigate to='/' replace/>}/>
+                       element={<Navigate to='/chat' replace/>}/>
             </Routes>
             :
             <Routes>
@@ -22,7 +23,7 @@ const AppRouter = () => {
                            element={<route.component/>}
                            key={route.path} />))}
                     <Route path="*"
-                       element={<Navigate to='/' replace/>}/>
+                       element={<Navigate to='/login' replace/>}/>
                        
             </Routes>
     );

@@ -1,0 +1,41 @@
+.message {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+
+
+      .messageText {
+        max-width: 60%;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .timestamp {
+        font-size: 0.8em;
+        color: #888;
+        margin-top: 5px;
+      }
+  }
+
+  .mine {
+    align-items: flex-end;
+  }
+
+  .theirs {
+    align-items: flex-start;
+  }
+
+  
+  .mine .messageText {
+    background-color: #dcf8c6; // Цвет фона для сообщений пользователя
+  }
+  
+  .theirs .messageText {
+    background-color: #fff; // Цвет фона для чужих сообщений
+  }
+  
+  
+
+  
+
+  

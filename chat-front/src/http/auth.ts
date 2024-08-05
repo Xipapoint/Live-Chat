@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { IUser } from '../models/user/user.interface';
+import { setupStore } from '../store/store';
+import { login, logout } from '../store/reducers/authSlice';
 
 interface AuthResponse {
     accessToken: string;
@@ -8,7 +10,7 @@ interface AuthResponse {
 }
 
 export const AUTH_URL = `http://localhost:5000/api/auth`
-
+const store = setupStore()
 const $api = axios.create({
     withCredentials: true,
     baseURL: AUTH_URL
@@ -28,8 +30,14 @@ $api.interceptors.response.use((config) => {
         try {
             const response = await axios.get<AuthResponse>(`${AUTH_URL}/refresh`, {withCredentials: true})
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('userId', response.data.user.userId)
+            localStorage.setItem('auth','true')
+            store.dispatch(login(response.data.user.userId)); // Устанавливаем состояние аутентификации
             return $api.request(originalRequest);
         } catch (e) {
+            store.dispatch(logout());
+            localStorage.setItem('userId', '')
+            localStorage.setItem('auth','false')
             console.log('НЕ АВТОРИЗОВАН')
         }
     }

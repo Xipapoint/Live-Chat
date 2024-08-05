@@ -29,7 +29,8 @@ class tokenService implements ITokenServiceImpl {
 
         return {
             accessToken,
-            refreshToken
+            refreshToken,
+            userId
         };
     }
 

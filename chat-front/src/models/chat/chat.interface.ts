@@ -1,7 +1,9 @@
+
 export interface IChatInterface{
+    _id: string,
     avatarUrl: string,
     firstName: string,
     lastName: string,
-    lastMessageTime: string,
-    lastMessageText: string
+    lastMessageText: string,
+    lastMessageTime: string | Date
 }

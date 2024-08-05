@@ -2,6 +2,7 @@
     display: flex;
     border-bottom: 1px solid gray;
     align-items: center;
+    width: 100%;
     .avatar{
         width: 30px;
         height: 30px;
@@ -9,12 +10,25 @@
     .content{
         display: flex;
         flex-direction: column;
+        width: 100%;
         .info{
+            height: 46px;
+            margin-top: 10px;
+            h3{
+                margin-left: 15px;
+            }
+        }
+        .message{
             display: flex;
             justify-content: space-between;
-        }
-        .text{
-            display: flex;
+
+            .date{
+                margin-right: 15px;
+            }
+            .text{
+                transform: translate(30px, -60%);
+                font-size: 17px;
+            }
         }
     }
 }

@@ -13,12 +13,13 @@ export interface IRoute {
 export const publicRoutes: IRoute[] = [
     // {path: routeConstants.HOME_ROUTE, exact: true, component: HomePage},
     {path: '/register', exact: true, component: RegisterWindow},
-    {path: '/chat', exact: true, component: chatWindow},
     {path: 'login', exact: true, component: LoginWindow}
     // {path: `${routeConstants.GRAPH_ROUTE}` + routeConstants.DEJKSTRA_ROUTE, exact: true, component: DejkstraPage},
     // {path: `${routeConstants.TREE_ROUT}` + routeConstants.BINARYTREE_ROUT, exact: true, component: BinaryTreePage}
 ]
 
 export const privateRoutes: IRoute[] = [
-
+    {path: '/register', exact: true, component: RegisterWindow},
+    {path: 'login', exact: true, component: LoginWindow},
+    {path: '/chat', exact: true, component: chatWindow},
 ]

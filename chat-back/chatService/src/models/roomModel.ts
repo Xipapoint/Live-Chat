@@ -14,7 +14,7 @@ const roomSchema = new Schema<IRoom>({
   roomFirstName: { type: String, required: true },
   roomLastName: {type: String, required: true},
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  lastMessage: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  lastMessage: {type: Schema.Types.ObjectId, ref: 'Message'},
   messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }], 
 });
 

@@ -4,6 +4,7 @@ import IAuthServiceImpl from "../service/impl/authServiceImpl";
 import authService from "../service/authService";
 import tokenService from "../service/tokenService";
 import { ILoginUserRequestDto } from "../dto/request/LoginUserRequestDTO.dto";
+import { IJwtUserResponseDto } from "../dto/response/JwtUserResponseDTO.dto";
 
 class AuthController{
     private authService: IAuthServiceImpl;
@@ -13,9 +14,9 @@ class AuthController{
     async registration(req: Request<{}, {}, IRegiterUserRequestDto>, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const userData: IRegiterUserRequestDto = req.body;
-            const tokens = await authService.registrationService(userData);
-            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-            return res.json(tokens);
+            const tokens_id: IJwtUserResponseDto = await authService.registrationService(userData);
+            res.cookie('refreshToken', tokens_id.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+            return res.json(tokens_id);
         } catch (error) {
             return next(error);
         }
@@ -24,9 +25,9 @@ class AuthController{
     async login(req: Request<{}, {}, ILoginUserRequestDto>, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const userData: ILoginUserRequestDto = req.body;
-            const tokens = await authService.login(userData);
-            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-            return res.json(tokens);
+            const tokens_id: IJwtUserResponseDto = await authService.login(userData);
+            res.cookie('refreshToken', tokens_id.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+            return res.json(tokens_id);
         } catch (error) {
             return next(error);
         }

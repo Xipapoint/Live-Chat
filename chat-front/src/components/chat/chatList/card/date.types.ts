@@ -1,0 +1,1 @@
+export const DATE_TYPE = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']

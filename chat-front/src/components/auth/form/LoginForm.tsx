@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import $api from '../../../http/auth'; // Импортируйте настроенный Axios экземпляр
 import styles from './Register.module.scss';
+import { useAppDispatch } from '../../../shared/hooks/redux';
+import {authSlice} from '../../../store/reducers/authSlice';
+import { IJwtResponse } from '../../dto/response/jwt/jwtResponse';
 
 interface ILoginFormProps {}
 
@@ -11,19 +14,25 @@ const LoginForm: React.FC<ILoginFormProps> = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState('');
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const {login} = authSlice.actions
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     try {
       const response = await $api.post('/login', {
         firstName,
         lastName,
         password,
       });
+      const responseData: IJwtResponse = response.data
 
       if (response.status === 200) {
+
         navigate('/chat');
+        dispatch(login(responseData.userId))
+        localStorage.setItem('auth', 'true')
       }
     } catch (error) {
         <p>Error: error</p>;

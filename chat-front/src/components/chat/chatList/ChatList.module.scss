@@ -1,7 +1,10 @@
 .chatList{
   display: flex;
   flex-direction: column;
-  width: 30vw;
-  height: 70%;
+  height: 100%;
   border-right:1px solid gray ;
+  
+  .container{
+    cursor: pointer;
+  }
 }

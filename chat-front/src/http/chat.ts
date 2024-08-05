@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { IUser } from '../models/user/user.interface';
+import { store } from '../store/store';
+import { login, logout } from '../store/reducers/authSlice';
 
 interface AuthResponse {
     accessToken: string;
@@ -28,9 +30,17 @@ $chat_api.interceptors.response.use((config) => {
         originalRequest._isRetry = true;
         try {
             const response = await axios.get<AuthResponse>(`${AUTH_URL}/refresh`, {withCredentials: true})
+            console.log('вау');
+            
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('userId', response.data.user.userId)
+            localStorage.setItem('auth','true')
+            store.dispatch(login(response.data.user.userId));
             return $chat_api.request(originalRequest);
         } catch (e) {
+            store.dispatch(logout());
+            localStorage.setItem('userId', '')
+            localStorage.setItem('auth','false')
             console.log('НЕ АВТОРИЗОВАН')
         }
     }

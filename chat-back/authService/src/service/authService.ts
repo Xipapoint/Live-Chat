@@ -35,7 +35,7 @@ class AuthService implements IAuthServiceImpl {
 
         const tokens: IJwtUserResponseDto = this.tokenService.generateTokens(user._id.toString(), false);
         await this.tokenService.saveToken(user._id.toString(), tokens.refreshToken);
-        return tokens;
+        return {...tokens};
     }
 
     async login(LoginData: ILoginUserRequestDto): Promise<IJwtUserResponseDto> {
@@ -49,7 +49,6 @@ class AuthService implements IAuthServiceImpl {
         if (!isPassEquals) {
             throw new Error('Incorrect password');
         }
-
         const tokens: IJwtUserResponseDto = this.tokenService.generateTokens(existingUser._id.toString(), LoginData.rememberMe);
         await this.tokenService.saveToken(existingUser._id.toString(), tokens.refreshToken);
         return tokens;

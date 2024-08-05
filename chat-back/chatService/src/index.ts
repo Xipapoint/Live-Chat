@@ -73,6 +73,6 @@ start();
 const wss = new WebSocketServer({ server });
 
 // Событие при подключении нового клиента
-wss.on('connection', (ws) => {
-  handleConnection(wss, ws);
+wss.on('connection', (ws, req) => {
+  handleConnection(wss, ws, req);
 });
