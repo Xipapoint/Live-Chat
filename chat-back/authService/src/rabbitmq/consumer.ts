@@ -1,11 +1,13 @@
 import amqp from 'amqplib';
 import userService from '../service/authService';
+import { ServiceMessage } from './types/request/requestTypes';
+import handlers from './messageHandler';
 
 const rabbitMQ = {
   url: 'amqp://localhost',
 };
 
-class UserConsumer {
+class Consumer {
   private channel: amqp.Channel | undefined;
   private connection: amqp.Connection | undefined;
 
@@ -22,21 +24,26 @@ class UserConsumer {
       this.channel.consume(queue, async (msg) => {
         if (msg !== null) {
           const messageContent = msg.content.toString();
-          const message = JSON.parse(messageContent);
+          const message: ServiceMessage = JSON.parse(messageContent);
           console.log(`[x] Received message: ${messageContent}`);
-
+  
           try {
-            const userId = await userService.getUserByNames(message.firstName, message.lastName);
-
+            const handler = handlers[message.serviceType];
+            if (!handler) {
+              throw new Error('Unknown service type');
+            }
+  
+            const response = await handler.handle(message);
             this.channel!.sendToQueue(
               msg.properties.replyTo,
-              Buffer.from(userId),
+              Buffer.from(JSON.stringify(response)),
               { correlationId: msg.properties.correlationId }
             );
           } catch (error: any) {
             console.error('Error processing message:', error.message);
+            this.channel?.reject(msg, false)
           }
-
+  
           this.channel?.ack(msg);
         }
       });
@@ -45,16 +52,6 @@ class UserConsumer {
     }
   }
 
-  private async closeConnection() {
-    if (this.channel) {
-      await this.channel.close();
-      this.channel = undefined;
-    }
-    if (this.connection) {
-      await this.connection.close();
-      this.connection = undefined;
-    }
-  }
 }
 
-export default new UserConsumer();
+export default new Consumer();

@@ -1,14 +1,15 @@
 import amqp from 'amqplib';
+import { ServiceMessage } from './types/request/requestTypes';
 
 const rabbitMQ = {
   url: 'amqp://localhost',
 };
 
-class UserProducer {
+class Producer {
   private channel: amqp.Channel | undefined;
   private connection: amqp.Connection | undefined;
 
-  public async publishMessage(data: { firstName: string, lastName: string }): Promise<string> {
+  public async publishMessage<T>(message: ServiceMessage): Promise<T> {
     if (!this.connection) {
       this.connection = await amqp.connect(rabbitMQ.url);
     }
@@ -22,14 +23,14 @@ class UserProducer {
     const correlationId = this.generateUuid();
     const replyQueue = await this.channel.assertQueue('', { exclusive: true });
 
-    const response = new Promise<string>((resolve, reject) => {
+    const response = new Promise<T>((resolve, reject) => {
       this.channel!.consume(replyQueue.queue, (msg) => {
         if (msg?.properties.correlationId === correlationId) {
-          resolve(msg.content.toString());
+          resolve(JSON.parse(msg.content.toString()));
         }
       }, { noAck: true });
 
-      this.channel!.sendToQueue(queue, Buffer.from(JSON.stringify(data)), {
+      this.channel!.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
         correlationId: correlationId,
         replyTo: replyQueue.queue
       });
@@ -41,17 +42,6 @@ class UserProducer {
   private generateUuid() {
     return crypto.randomUUID();
   }
-
-  private async closeConnection() {
-    if (this.channel) {
-      await this.channel.close();
-      this.channel = undefined;
-    }
-    if (this.connection) {
-      await this.connection.close();
-      this.connection = undefined;
-    }
-  }
 }
 
-export default new UserProducer();
+export default new Producer();

@@ -6,24 +6,35 @@ import { IAllRoomsInterface } from '../dto/response/AllRooms.interface';
 import { mapRoomToAllRoomsInterface } from '../helpers/mappers/Mapper';
 import Message, { IMessage } from '../models/messageModel';
 import messageService from './messageService';
+import { GetNamesResponse, GetUserResponse } from '../rabbitMQ/types/response/responseTypes';
+import { GetUserRequestMessage, GetNamesRequestMessage } from '../rabbitMQ/types/request/requestTypes';
 class ChatService{
 
 
 
     async createRoom(roomData: ICreateRoomRequestDTO): Promise<IRoom>{
         const data = {firstName: roomData.firstName, lastName: roomData.lastName}
-        console.log("in service");
-        console.log(roomData);
-        
-        const secondId = await producer.publishMessage(data) 
+        const getUserM: GetUserRequestMessage = {
+            serviceType: 'getUser',
+            data: {
+                firstName: data.firstName,
+                lastName: data.lastName
+            }
+        }
+        const secondId = await producer.publishMessage<GetUserResponse>(getUserM) 
         const existingRoom = await Room.findOne({users: [{_id: roomData.userId}, {_id: secondId}]})
-        console.log(existingRoom);
-        
         if(existingRoom) throw new Error("Room already exists");
+        const getNamesM: GetNamesRequestMessage = {
+            serviceType: 'getNames',
+            data: {
+                id: roomData.userId
+            }
+        }
+        const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
         const testId = roomData.userId 
         const newRoom = new Room({
             roomFirstName: roomData.firstName + ' ' + roomData.lastName, 
-            roomLastName: , 
+            roomLastName: secondFirstName + '' + secondLastName, 
             users: [{_id: testId}, {_id: secondId}]
         })
         await newRoom.save()

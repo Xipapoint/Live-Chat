@@ -1,5 +1,4 @@
 import express, { Application } from 'express';
-import { createServer } from 'http';
 import cors from 'cors'
 import dotenv from 'dotenv';
 import connectToDatabase from './database';
@@ -9,6 +8,7 @@ import { router } from './routes';
 import http from 'http';
 import { WebSocketServer } from 'ws';
 import { handleConnection } from './ws/connectionHandler';
+import errorMiddleware from './middleware/errorMiddleware';
 // import chatRoutes from './routes/chatRoutes';
 // import { setupWebSocket } from './services/websocketService';
 
@@ -42,21 +42,9 @@ app.use(bodyParser.json());
 app.use(cookieParser()); 
 
 app.use('/api', router);
+app.use(errorMiddleware);
 
 connectToDatabase();
-// connectRabbitMQ()
-//   .then(() => {
-//     server.listen(PORT, () => {
-//       console.log(`Chat service running on port ${PORT}`);
-//       setupWebSocket(server);
-//     });
-//   })
-//   .catch((err: any) => {
-//     console.log(err);
-    
-//     process.exit(1);
-//   });
-
 const server = http.createServer(app);
 
 const start = async () => {
@@ -68,11 +56,8 @@ const start = async () => {
 };
 
 start();
-
-// Создание WebSocket сервера, используя HTTP сервер
 const wss = new WebSocketServer({ server });
 
-// Событие при подключении нового клиента
 wss.on('connection', (ws, req) => {
   handleConnection(wss, ws, req);
 });

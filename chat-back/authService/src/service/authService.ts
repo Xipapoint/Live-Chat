@@ -9,6 +9,7 @@ import { ITokenServiceImpl } from './impl/tokenService.impl';
 import TokenService from './tokenService';
 import { ISecureRegisterResponseDTO } from '../dto/response/SecureRegisterResponseDTO';
 import tokenService from './tokenService';
+import { GetNamesResponse } from '../rabbitmq/types/response/responseTypes';
 
 class AuthService implements IAuthServiceImpl {
     private tokenService: ITokenServiceImpl;
@@ -17,11 +18,31 @@ class AuthService implements IAuthServiceImpl {
         this.tokenService = tokenService;
     }
 
+    // RABBIT
+
+    async getUserByNames(firstName: string, lastName: string): Promise<string>{
+        const existingUser = await User.findOne({ firstName: firstName, lastName: lastName }).exec();
+        if (!existingUser) {
+            throw new Error("User doesn't exist");
+        }
+        return existingUser._id.toString();
+    }
+
+    async getNamesById(userId: string): Promise<GetNamesResponse>{
+        const existingUser = await User.findById(userId).exec();
+        if (!existingUser) {
+            throw new Error("User doesn't exist");
+        }
+        return {secondFirstName: existingUser.firstName, secondLastName: existingUser.lastName }
+    }
+
+
     // PRIVATE
     private async secureRegisterData(RegisterData: IRegiterUserRequestDto): Promise<ISecureRegisterResponseDTO> {
         const hashedPassword: string = await Security.hash(RegisterData.password)
         return { hashedPassword  };
     }
+    
 
     // PUBLIC
     async registrationService(RegisterData: IRegiterUserRequestDto): Promise<IJwtUserResponseDto> {
@@ -52,15 +73,6 @@ class AuthService implements IAuthServiceImpl {
         const tokens: IJwtUserResponseDto = this.tokenService.generateTokens(existingUser._id.toString(), LoginData.rememberMe);
         await this.tokenService.saveToken(existingUser._id.toString(), tokens.refreshToken);
         return tokens;
-    }
-
-
-    async getUserByNames(firstName: string, lastName: string): Promise<string>{
-        const existingUser = await User.findOne({ firstName: firstName, lastName: lastName }).exec();
-        if (!existingUser) {
-            throw new Error("User doesn't exist");
-        }
-        return existingUser._id.toString();
     }
 
     async refresh(refreshToken: string) {
