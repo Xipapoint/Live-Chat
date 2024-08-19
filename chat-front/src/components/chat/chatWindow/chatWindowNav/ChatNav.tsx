@@ -5,12 +5,11 @@ import DeleteRoomModal from './modals/deleteRoom/DeleteRoomModal';
 import ChangeNameModal from './modals/changeName/ChangeNameModal';
 
 interface IChatNavProps {
-  chatFirstName: string;
-  chatLastName: string;
+  chatName: string,
   roomId: string;
 }
 
-const ChatNav: FC<IChatNavProps> = ({ chatFirstName, chatLastName, roomId }) => {
+const ChatNav: FC<IChatNavProps> = ({ chatName, roomId }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isChangeNameModalOpen, setIsChangeNameModalOpen] = useState(false);
@@ -55,8 +54,7 @@ const ChatNav: FC<IChatNavProps> = ({ chatFirstName, chatLastName, roomId }) => 
       try {
         const response = await $chat_api.put(`/changename/${roomId}`, { firstName, lastName });
         if (response.status === 200) {
-          chatFirstName = firstName
-          chatLastName = lastName
+          chatName = firstName + ' ' + lastName
           console.log('Name changed successfully');
         } else {
           console.error('Failed to change name');
@@ -71,9 +69,9 @@ const ChatNav: FC<IChatNavProps> = ({ chatFirstName, chatLastName, roomId }) => 
 
   return (
     <div className={styles.chatNav}>
-      <h2>{chatFirstName} {chatLastName}</h2>
+      <h2>{chatName}</h2>
       <div onClick={toggleMenu} className={styles.menuContainer}>
-        <img src={'settings_icon.png'} alt={`${chatFirstName} ${chatLastName}`} className={styles.icon} />
+        <img src={'settings_icon.png'} alt={`${chatName}`} className={styles.icon} />
         {isMenuOpen && (
           <div className={styles.dropdownMenu}>
             <ul>

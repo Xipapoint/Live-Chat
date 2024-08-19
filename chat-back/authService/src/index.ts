@@ -5,6 +5,7 @@ import { router } from './router';
 import cors from 'cors'
 import consumer from './rabbitmq/consumer';
 import cookieParser from 'cookie-parser';
+import errorMiddleware from './middleware/errorMiddleware';
 const app: Application = express();
 
 const allowedOrigins = ['http://localhost:5173'];
@@ -34,7 +35,7 @@ app.use(cookieParser());
 connectDB();
 consumer.start()
 app.use('/api', router)
-
+app.use(errorMiddleware)
 
 const PORT = process.env.PORT as number | undefined || 5000;
 

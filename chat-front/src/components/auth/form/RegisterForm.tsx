@@ -29,6 +29,7 @@ const RegisterForm: React.FC<IRegisterFormProps> = () => {
 
       if (response.status === 200) {
 
+        localStorage.setItem('token', responseData.accessToken)
         navigate('/chat');
         dispatch(login(responseData.userId))
         localStorage.setItem('auth', 'true')

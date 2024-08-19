@@ -2,7 +2,7 @@ import { ICreateRoomRequestDTO } from '../dto/request/CreateRoomNameRequestDTO';
 import { IChangeRoomNameRequestDTO } from '../dto/request/ChangeRoomRequestDTO';
 import Room, { IRoom } from '../models/roomModel';
 import producer from '../rabbitMQ/producer';
-import { IAllRoomsInterface } from '../dto/response/AllRooms.interface';
+import { IAllRoomsInterface } from '../dto/response/AllRoomsResponse.interface';
 import { mapRoomToAllRoomsInterface } from '../helpers/mappers/Mapper';
 import Message, { IMessage } from '../models/messageModel';
 import messageService from './messageService';
@@ -21,8 +21,12 @@ class ChatService{
                 lastName: data.lastName
             }
         }
-        const secondId = await producer.publishMessage<GetUserResponse>(getUserM) 
-        const existingRoom = await Room.findOne({users: [{_id: roomData.userId}, {_id: secondId}]})
+        console.log(getUserM);
+        
+        const IdResponse = await producer.publishMessage<GetUserResponse>(getUserM)
+        const existingRoom = await Room.findOne({users: {$all: [{_id: roomData.userId}, {_id: IdResponse.userId}]} })
+        console.log(existingRoom);
+        
         if(existingRoom) throw new Error("Room already exists");
         const getNamesM: GetNamesRequestMessage = {
             serviceType: 'getNames',
@@ -30,12 +34,15 @@ class ChatService{
                 id: roomData.userId
             }
         }
+        console.log(getNamesM);
+        
         const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
-        const testId = roomData.userId 
+        console.log("names:", secondFirstName, secondLastName);
+        
         const newRoom = new Room({
             roomFirstName: roomData.firstName + ' ' + roomData.lastName, 
-            roomLastName: secondFirstName + '' + secondLastName, 
-            users: [{_id: testId}, {_id: secondId}]
+            roomLastName: secondFirstName + ' ' + secondLastName, 
+            users: [{_id: roomData.userId }, {_id: IdResponse.userId}]
         })
         await newRoom.save()
         console.log(newRoom);
@@ -66,15 +73,30 @@ class ChatService{
     
 
     async getAllRooms(userId: string): Promise<IAllRoomsInterface[]>{
-        const allRooms: IRoom[] = await Room.find({ users: { $in: [userId] } });
-        if(allRooms === null){
-            console.log("Rooms with this person dont exist");
-            throw new Error("Rooms with this person dont exist")
+        try {
+            const allRooms: IRoom[] = await Room.find({ users: { $in: userId } });
+            const getNamesM: GetNamesRequestMessage = {
+                serviceType: 'getNames',
+                data: {
+                    id:  userId
+                }
+            }
+            const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
+            console.log("names: ", secondFirstName, secondLastName);
+            
+            if(allRooms === null){
+                console.log("Rooms with this person dont exist");
+                throw new Error("Rooms with this person dont exist")
+            }
+            const rooms = await mapRoomToAllRoomsInterface(allRooms, secondFirstName, secondLastName)
+            console.log("rooms:", rooms);
+            
+            return rooms 
+        } catch (error) {
+            console.error(error)
+            throw error
         }
-        const rooms = mapRoomToAllRoomsInterface(allRooms)
-        console.log(allRooms);
-        
-        return rooms
+
     }
 
     async getMessagesByRoomId(roomId: string): Promise<IMessage[]> {

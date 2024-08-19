@@ -33,6 +33,7 @@ const LoginForm: React.FC<ILoginFormProps> = () => {
         navigate('/chat');
         dispatch(login(responseData.userId))
         localStorage.setItem('auth', 'true')
+        localStorage.setItem('userId', responseData.userId)
       }
     } catch (error) {
         <p>Error: error</p>;

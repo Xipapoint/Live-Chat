@@ -1,3 +1,5 @@
+import { GetNamesResponse } from "../../rabbitmq/types/response/responseTypes"
+
 export interface IUserServiceImpl{
-    getUserWalletAmount(token: string): Promise<number | null> 
+    getNamesById(userId: string): Promise<GetNamesResponse>
 }

@@ -19,7 +19,5 @@ export const publicRoutes: IRoute[] = [
 ]
 
 export const privateRoutes: IRoute[] = [
-    {path: '/register', exact: true, component: RegisterWindow},
-    {path: 'login', exact: true, component: LoginWindow},
     {path: '/chat', exact: true, component: chatWindow},
 ]

@@ -10,30 +10,13 @@ import TokenService from './tokenService';
 import { ISecureRegisterResponseDTO } from '../dto/response/SecureRegisterResponseDTO';
 import tokenService from './tokenService';
 import { GetNamesResponse } from '../rabbitmq/types/response/responseTypes';
+import { UnathorizedError } from '../errors/4__Error/UnathorizedError.error';
 
 class AuthService implements IAuthServiceImpl {
     private tokenService: ITokenServiceImpl;
 
     constructor(tokenService: ITokenServiceImpl) {
         this.tokenService = tokenService;
-    }
-
-    // RABBIT
-
-    async getUserByNames(firstName: string, lastName: string): Promise<string>{
-        const existingUser = await User.findOne({ firstName: firstName, lastName: lastName }).exec();
-        if (!existingUser) {
-            throw new Error("User doesn't exist");
-        }
-        return existingUser._id.toString();
-    }
-
-    async getNamesById(userId: string): Promise<GetNamesResponse>{
-        const existingUser = await User.findById(userId).exec();
-        if (!existingUser) {
-            throw new Error("User doesn't exist");
-        }
-        return {secondFirstName: existingUser.firstName, secondLastName: existingUser.lastName }
     }
 
 
@@ -77,19 +60,20 @@ class AuthService implements IAuthServiceImpl {
 
     async refresh(refreshToken: string) {
         if (!refreshToken) {
-            throw new Error("Unathorized");
+            throw new UnathorizedError("Unathorized");
         }
-
+        console.log("entered refresh service");
+        
         const userData = tokenService.verifyRefreshToken(refreshToken);
         const tokenFromDb = await tokenService.findToken(refreshToken);
 
         if (!userData || !tokenFromDb) {
-            throw new Error("Unathorized");;
+            throw new UnathorizedError("Unathorized");;
         }
 
         const user = await User.findById((await userData).id);
         if (!user) {
-            throw new Error("Unathorized");;
+            throw new UnathorizedError("Unathorized");;
         }
         const id = user._id.toString();
 

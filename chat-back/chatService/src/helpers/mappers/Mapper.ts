@@ -1,19 +1,22 @@
-import { IAllRoomsInterface } from "../../dto/response/AllRooms.interface";
+import { IAllRoomsInterface } from "../../dto/response/AllRoomsResponse.interface";
 import { IRoom } from "../../models/roomModel";
 import messageService from "../../services/messageService";
 
 export const mapRoomToAllRoomsInterface = async (
-    rooms: IRoom[]
+    rooms: IRoom[],
+    secondFirstName: string,
+    secondLastName: string,
   ): Promise<IAllRoomsInterface[]> => {
     const roomPromises = rooms.map(async (room) => {
-      const lastMessage = await messageService.findMessageById(room.lastMessage._id);
+      let lastMessage
+      if(room.lastMessage) lastMessage = await messageService.findMessageById(room.lastMessage._id);
       return {
         _id: room._id,
-        firstName: room.roomFirstName || '',
-        lastName: room.roomLastName || '',
-        lastMessageText: lastMessage.message,
-        lastMessageTime: lastMessage.timestamp,
+        name: room.roomFirstName === `${secondFirstName + ' ' + secondLastName}` ? room.roomLastName : room.roomFirstName,
+        lastMessageText: lastMessage?.message || '',
+        lastMessageTime: lastMessage?.timestamp || '',
       };
     });
-    return Promise.all(roomPromises);
+
+    return await Promise.all(roomPromises);
   };

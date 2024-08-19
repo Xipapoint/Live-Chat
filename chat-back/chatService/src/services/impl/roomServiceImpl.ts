@@ -1,6 +1,6 @@
 import { IChangeRoomNameRequestDTO } from "../../dto/request/ChangeRoomRequestDTO";
 import { ICreateRoomRequestDTO } from "../../dto/request/CreateRoomNameRequestDTO";
-import { IAllRoomsInterface } from "../../dto/response/AllRooms.interface";
+import { IAllRoomsInterface } from "../../dto/response/AllRoomsResponse.interface";
 import { IMessage } from "../../models/messageModel";
 import { IRoom } from "../../models/roomModel";
 

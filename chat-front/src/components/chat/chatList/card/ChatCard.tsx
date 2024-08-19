@@ -4,9 +4,8 @@ import { DATE_TYPE } from './date.types';
 
 interface ChatCardProps{
     avatarUrl: string,
-    firstName: string,
-    lastName: string,
-    date: Date,
+    name: string,
+    date: Date | string,
     message: string
     
 }
@@ -16,32 +15,53 @@ function defineWeekDay(dayNumber: number, messageHours: string){
   DATE_TYPE[dayNumber] + ', ' + messageHours
   return visualDate
 }
-
-const ChatCard: React.FC<ChatCardProps> = ({ avatarUrl, firstName, lastName, date, message }) => {
+function initializeTimeStamp(date: Date){
   const messageDate = new Date(date);
   const currentDate = new Date();
-  console.log(date);
-  
-
   const currentDay = currentDate.getDate();
   const currentMonth = currentDate.getMonth();
   const messageHours = date.toString().slice(11,16);
   const messageDay = messageDate.getDate();
-  const messageMonth = messageDate.getMonth();
+  const messageMonth = messageDate.getMonth() + 1;
   const messageYear = messageDate.getFullYear();
-
   const differenceMonth = currentMonth - messageMonth;
   const differenceDay = currentDay - messageDay;
+  return{
+    messageHours,
+    messageDay,
+    messageMonth,
+    messageYear,
+    differenceMonth,
+    differenceDay
+  }
 
-  const visualDate = differenceMonth > 1 && differenceDay > 7 ? messageYear : defineWeekDay(differenceDay, messageHours)
+}
+
+const ChatCard: React.FC<ChatCardProps> = ({ avatarUrl, name, date, message }) => {
+  let visualDate: string
+  console.log(date);
   
-
+  if(date === '') visualDate = ''
+  else{
+    const {
+      messageHours,
+      messageDay,
+      messageMonth,
+      messageYear,
+      differenceMonth,
+      differenceDay
+    } = initializeTimeStamp(date as Date)
+    visualDate = differenceMonth > 1 || differenceDay > 7 ? 
+    (messageDay.toString() + '/' + messageMonth.toString() + '/' + messageYear.toString()) : 
+    defineWeekDay(differenceDay, messageHours)
+  }
+  
   return(
     <div className={styles.card}>
-      <img src={avatarUrl} alt={`${firstName} ${lastName}`} className={styles.avatar} />
+      <img src={avatarUrl} alt={`${name}`} className={styles.avatar} />
       <div className={styles.content}>
         <div className={styles.info}>
-          <h3>{`${firstName} ${lastName}`}</h3>
+          <h3>{`${name}`}</h3>
         </div>
         <div className={styles.message}>
           <p className={styles.text}>{message}</p>

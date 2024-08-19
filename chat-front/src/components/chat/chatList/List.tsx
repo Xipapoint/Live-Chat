@@ -1,64 +1,96 @@
 import { FC, useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 import ChatCard from './card/ChatCard';
 import styles from './ChatList.module.scss';
 import $chat_api from '../../../http/chat';
 import { IChatInterface } from '../../../models/chat/chat.interface';
+import { Bounce, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import useErrorToast from '../../../shared/hooks/toast';
+import { IMessage } from '../../../models/chat/message.interface';
 
 interface IChatListProps{
   searchTerm: string,
-  onSelectChat: (chat: IChatInterface) => void;
+  onSelectChat: (chat: IChatInterface) => void,
+  lastMessage: IMessage | null
 }
 
-const ChatList: FC<IChatListProps> = ({searchTerm, onSelectChat}) => {
+const ChatList: FC<IChatListProps> = ({searchTerm, onSelectChat, lastMessage}) => {
   const [chatList, setChatList] = useState<IChatInterface[]>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { handleError, error } = useErrorToast();
 
   useEffect(() => {
     const fetchChatList = async () => {
       try {
-        console.log(Cookies.get());
         const response = await $chat_api.get('/rooms');
-        console.log(response);
-        setChatList(response.data);
-        setLoading(false);
+        setChatList(response.data)
+        setLoading(false)
       } catch (err) {
-        setError((err as Error).message);
-        setLoading(false);
+        handleError(err);
+        setLoading(false)
       }
     };
 
     fetchChatList();
-  }, []);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  
+  }, [lastMessage]);
+
   const filteredChats = chatList?.filter(chat =>
-    `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    `${chat.name}`.toLowerCase().includes(searchTerm.toLowerCase())
+  ).sort((a, b) => {
+    const dateA = new Date(a.lastMessageTime).getTime();
+    const dateB = new Date(b.lastMessageTime).getTime();
+    return dateB - dateA; 
+  });
 
   return (
+    loading ? <p>Loading...</p> :
+    error 
+    ? 
+      <div><p>Couldn`t find chats</p><ToastContainer 
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Bounce}
+        />
+      </div> 
+    :
     <div className={styles.chatList}>
-
       {filteredChats?.map(chat => (
         <div
-          className={styles.container}
-          key={chat.firstName + chat.lastName}
+        className={styles.container}
+          key={chat._id}
           onClick={() => onSelectChat(chat)}
         >
         <ChatCard
-          key={chat._id} // Ensure each chat has a unique id
+          key={chat._id} 
           avatarUrl='avatar.png'
-          firstName={chat.firstName}
-          lastName={chat.lastName}
-          date={chat.lastMessageTime as Date}
+          name={chat.name}
+          date={chat.lastMessageTime}
           message={chat.lastMessageText}
         />
       </div>
       ))}
-
+      <ToastContainer 
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Bounce}
+        />
     </div>
   );
 };

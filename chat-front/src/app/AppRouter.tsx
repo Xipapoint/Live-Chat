@@ -1,10 +1,11 @@
 
 import {Navigate, Route, Routes} from 'react-router-dom';
 import { privateRoutes, publicRoutes } from './router';
-// import { useAppSelector } from '../shared/hooks/redux';
+import { useAppSelector } from '../shared/hooks/redux';
 
 const AppRouter = () => {
-    const auth = localStorage.getItem('auth')
+    const authState = useAppSelector(state => state.auth)
+    const auth = authState.isAuthenticated
     return (
         auth
             ?

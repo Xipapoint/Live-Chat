@@ -1,18 +1,28 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
-import { persistReducer, persistStore } from 'redux-persist';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 import authReducer from './reducers/authSlice'; // Убедитесь, что путь правильный
 
 const persistConfig = {
     key: 'root',
+    version: 1,
     storage,
-};
+  }
 
 const rootReducer = combineReducers({
     auth: authReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const setupStore = () => {
     return configureStore({
@@ -20,7 +30,7 @@ export const setupStore = () => {
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware({
                 serializableCheck: {
-                    ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+                    ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
                 },
             }),
     });

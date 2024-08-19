@@ -1,6 +1,6 @@
-// import { Router } from "express";
-// import UserController from "../controllers/userController";
+import { Router } from "express";
+import UserController from "../controllers/userController";
 
-// export const userRouter = Router();
+export const userRouter = Router();
 
-// userRouter.get('/walletamount', UserController.getUserWalletAmount);
+userRouter.get('/names/:userId', UserController.getNamesById);

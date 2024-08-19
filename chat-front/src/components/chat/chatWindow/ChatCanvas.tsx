@@ -5,31 +5,22 @@ import { IMessage } from '../../../models/chat/message.interface.ts';
 import $chat_api from '../../../http/chat.ts';
 import ChatNav from './chatWindowNav/ChatNav.tsx';
 import ChatMessage from './ChatMessage/ChatMessage.tsx';
-// import { useAppSelector } from '../../../shared/hooks/redux.ts';
 
 interface IChatCanvasProps {
-  chat: IChatInterface;
+  chat: IChatInterface,
+  setLastMessage: (message: IMessage) => void
 }
-// interface IUserMessage {
-//   roomId: string;
-//   message: string;
-// }
 
-const ChatCanvas: FC<IChatCanvasProps> = ({ chat }) => {
+const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  // const [lastSendMessage, setLastSendMessage] = useState<string>('')
   const wsRef = useRef<WebSocket | null>(null);
-  // const auth = useAppSelector(state => state.auth)
   
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        console.log(chat._id);
-        
         const response = await $chat_api.get(`/rooms/${chat._id}/messages`);
         if (Array.isArray(response.data)) {
-          console.log(response.data);
           setMessages(response.data);
         } else {
           console.error('Unexpected response format:', response.data);
@@ -42,45 +33,46 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat }) => {
 
     fetchMessages();
 
-    // Initialize WebSocket connection
-    if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) {
-      const ws = new WebSocket(`ws://localhost:5001?roomId=${chat._id}`);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('Connected to WebSocket');
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.roomId === chat._id) {
-          console.log("Сообщения");
-          setMessages((prevMessages) => [...prevMessages, message]);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('Disconnected from WebSocket');
-      };
+    if (wsRef.current) {
+      wsRef.current.close();
     }
 
+    const ws = new WebSocket(`ws://localhost:5001?roomId=${chat._id}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.roomId === chat._id) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+        setLastMessage(message);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('Disconnected from WebSocket');
+    };
+
     return () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      if (wsRef.current) {
         wsRef.current.close();
       }
     };
-  }, [chat._id]);
+  }, [chat._id, setLastMessage]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const message: string = newMessage;
       const userId = localStorage.getItem('userId')
 
-      wsRef.current.send(JSON.stringify({ roomId: chat._id, userId, message: message }));
+      wsRef.current.send(JSON.stringify({ roomId: chat._id, userId, message }));
       setNewMessage('');
     }
   };
@@ -93,7 +85,7 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat }) => {
 
   return (
     <div className={styles.chat}>
-      <ChatNav chatFirstName={chat.firstName} chatLastName={chat.firstName} roomId={chat._id}/>
+      <ChatNav chatName={chat.name} roomId={chat._id}/>
       <div className={styles.messages}>
         {messages.map((message) => (
           <ChatMessage
