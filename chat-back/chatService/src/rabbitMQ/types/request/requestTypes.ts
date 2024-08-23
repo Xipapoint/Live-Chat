@@ -1,6 +1,7 @@
 export interface BaseMessage {
-    serviceType: string;
-  }
+  serviceType: string;
+}
+
   
   export interface GetUserRequestMessage extends BaseMessage {
     serviceType: 'getUser';

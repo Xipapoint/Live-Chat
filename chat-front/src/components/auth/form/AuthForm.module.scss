@@ -1,8 +1,8 @@
-.registerBlock{
+.authBlock{
     display: flex;
     justify-content: center;
     width: 100vw;
-    .registerForm{
+    .authForm{
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -12,6 +12,10 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         max-width: 400px;
         margin: auto;
+        .inputError{
+          font-size: 10px;
+          color: red;
+        }
       
         input {
           width: 100%;

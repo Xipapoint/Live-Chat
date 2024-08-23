@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 interface IUser extends Document {
-    _id: Types.ObjectId; // Ensure _id is properly typed
+  _id: Types.ObjectId; 
   firstName: string;
   lastName: string
   password: string;

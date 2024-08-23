@@ -1,5 +1,7 @@
 import amqp from 'amqplib';
 import { ServiceMessage } from './types/request/requestTypes';
+import { addQueueToMessage } from './types/request/QueueTypes';
+
 
 const rabbitMQ = {
   url: 'amqp://localhost',
@@ -17,7 +19,8 @@ class Producer {
       this.channel = await this.connection.createChannel();
     }
 
-    const queue = 'userQueue';
+    const messageWithQueue = addQueueToMessage(message)
+    const queue = messageWithQueue.queue
     await this.channel.assertQueue(queue, { durable: true });
 
     const correlationId = this.generateUuid();

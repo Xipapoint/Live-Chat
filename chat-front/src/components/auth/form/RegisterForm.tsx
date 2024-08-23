@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import $api from '../../../http/auth'; // Импортируйте настроенный Axios экземпляр
-import styles from './Register.module.scss';
+import styles from './AuthForm.module.scss';
 import { useAppDispatch } from '../../../shared/hooks/redux';
 import {authSlice} from '../../../store/reducers/authSlice';
 import { IJwtResponse } from '../../dto/response/jwt/jwtResponse';

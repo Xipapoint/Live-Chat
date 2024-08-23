@@ -18,7 +18,6 @@ class UserService implements IUserServiceImpl{
         }
         return existingUser._id.toString();
     }
-    
 }
 
 export default new UserService()
