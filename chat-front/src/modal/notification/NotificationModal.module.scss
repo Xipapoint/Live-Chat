@@ -1,0 +1,35 @@
+.notification-modal {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    padding: 15px;
+    transition: opacity 0.3s ease-in-out;
+
+    .notification-content h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .notification-content p {
+      margin: 10px 0;
+    }
+    .notification-content button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    
+    .notification-content button:hover {
+      background-color: #0056b3;
+    }
+  }
+  
+  
+  

@@ -17,6 +17,14 @@ export interface BaseMessage {
       id: string;
     };
   }
+
+  export interface SetNotificationUserMessageRequestMessage extends BaseMessage {
+    serviceType: 'setNotificationUserMessage';
+    data: {
+        message: string,
+        userId: string
+    };
+  }
   
-  export type ServiceMessage = GetUserRequestMessage | GetNamesRequestMessage;
+  export type ServiceMessage = GetUserRequestMessage | GetNamesRequestMessage | SetNotificationUserMessageRequestMessage;
   

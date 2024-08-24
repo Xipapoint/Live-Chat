@@ -5,6 +5,8 @@ import { IMessage } from '../models/messageModel';
 import { IRoom } from '../models/roomModel';
 import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
+import producer from '../rabbitMQ/producer';
+import { SetNotificationUserMessageRequestMessage } from '../rabbitMQ/types/request/requestTypes';
 
 interface ParsedData {
   roomId: string;
@@ -30,9 +32,19 @@ export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: s
       const broadcastData = JSON.stringify({...newMessage.toObject() });
 
       // Отправляем сообщение всем клиентам в данной комнате
-      wss.clients.forEach((client) => {
+      wss.clients.forEach(async (client) => {
         if (client.readyState === WebSocket.OPEN && (client as any).roomId === roomId) {
+          const setMessage: SetNotificationUserMessageRequestMessage = {
+            serviceType: 'setNotificationUserMessage',
+            data: {
+                message: newMessage.message,
+                userId: newMessage.userId.toString()
+            }
+          }
+          console.log("notification", setMessage);
+          
           client.send(broadcastData);
+          await producer.publishMessage(setMessage)
         }
       });
     }

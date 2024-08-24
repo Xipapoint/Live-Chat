@@ -1,8 +1,9 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { handleMessage } from './messageHandler';
+import { handleMessage } from './wsMessageHandler';
+import http from 'http';
 
-export function handleConnection(wss: WebSocketServer, ws: WebSocket, req: any): void {
-  const url = new URL(req.url, `http://${req.headers.host}`);
+export function handleConnection(wss: WebSocketServer, ws: WebSocket, req: http.IncomingMessage): void {
+  const url = new URL(req.url as string, `http://${req.headers.host}`);
   const roomId = url.searchParams.get('roomId');
   
   if (roomId) {

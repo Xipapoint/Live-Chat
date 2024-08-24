@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { router } from './routes';
 import http from 'http';
-import { WebSocketServer } from 'ws';
+import { WebSocket, WebSocketServer } from 'ws';
 import { handleConnection } from './ws/connectionHandler';
 import errorMiddleware from './middleware/errorMiddleware';
 // import chatRoutes from './routes/chatRoutes';
@@ -58,6 +58,6 @@ const start = async () => {
 start();
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws, req) => {
+wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
   handleConnection(wss, ws, req);
 });
