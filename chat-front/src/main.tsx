@@ -7,6 +7,7 @@ import { persistor, store } from './store/store'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { NotificationProvider } from './providers/NotificationProvider'
+import NotificationModal from './modal/notification/NotificationModal'
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <PersistGate loading={null} persistor={persistor}>
           <NotificationProvider>
             <App />
+            <NotificationModal />
           </NotificationProvider>
         </PersistGate>
       </Provider>

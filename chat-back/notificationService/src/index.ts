@@ -59,6 +59,13 @@ const start = async () => {
 
 const wss = new WebSocketServer({ server });
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
+  const userId = req.url?.split('?userId=')[1];
+  if (userId) {
+    (ws as any).userId = userId;
+    console.log(`User connected with ID: ${userId}`);
+} else {
+    ws.close(4001, "User ID is required");
+}
   consumer.start(wss, ws, req)
   
 });

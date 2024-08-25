@@ -7,12 +7,17 @@ import { SetNotificationUserMessageRequestMessage } from '../rabbitmq/types/requ
 
 export async function sendNotification(wss: WebSocketServer, notification: INotification) {
   const broadcastData = JSON.stringify(notification.toObject());
-
+  console.log("вызвали");
+  
   wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN && (client as any).userId === notification.userId) {
-      client.send(broadcastData);
+    const clientUserId = (client as any).userId;
+    console.log(`Client ID: ${clientUserId}, Notification sender ID: ${notification.userId}`);
+    
+    if (client.readyState === WebSocket.OPEN && clientUserId !== notification.userId.toString()) {
+        console.log("отправил");
+        client.send(broadcastData);
     }
-  });
+});
 }
 
 export async function createNotification(wss: WebSocketServer, ws: WebSocket, RabbitMessage: SetNotificationUserMessageRequestMessage): Promise<void> {

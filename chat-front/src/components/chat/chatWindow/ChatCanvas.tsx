@@ -15,7 +15,7 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
-  
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -32,6 +32,9 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
     };
 
     fetchMessages();
+  }, [setLastMessage])
+  
+  useEffect(() => {
 
     if (wsRef.current) {
       wsRef.current.close();
@@ -65,7 +68,7 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
         wsRef.current.close();
       }
     };
-  }, [chat._id, setLastMessage]);
+  }, [chat._id]);
 
   const handleSendMessage = () => {
     if (newMessage.trim() && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -83,16 +86,18 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
     }
   };
 
+  
+
   return (
     <div className={styles.chat}>
       <ChatNav chatName={chat.name} roomId={chat._id}/>
       <div className={styles.messages}>
         {messages.map((message) => (
           <ChatMessage
+          message={message}
           key={message._id}
-          message={message.message}
+          text={message.message}
           isMine={localStorage.getItem('userId') === message.userId}
-          timestamp={message.timestamp}
         />
         ))}
       </div>

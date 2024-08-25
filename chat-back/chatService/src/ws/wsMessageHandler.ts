@@ -31,7 +31,6 @@ export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: s
 
       const broadcastData = JSON.stringify({...newMessage.toObject() });
 
-      // Отправляем сообщение всем клиентам в данной комнате
       wss.clients.forEach(async (client) => {
         if (client.readyState === WebSocket.OPEN && (client as any).roomId === roomId) {
           const setMessage: SetNotificationUserMessageRequestMessage = {

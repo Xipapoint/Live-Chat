@@ -29,11 +29,10 @@ const ChatWindow: FC = () => {
         {selectedChat ? (
           <ChatCanvas chat={selectedChat} setLastMessage={handleSetLastMessage}/>
         ) : (
-          <p style={{marginTop: '30%'}}>Select a chat to view details</p>
+          <p style={{marginTop: '30%', marginLeft: '30%'}}>Select a chat to view details</p>
         )}
       </div>
     </div>
-
   )
 }
 

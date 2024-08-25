@@ -12,5 +12,13 @@ class Messageservice{
             throw Error
         }
     }
+
+    async replyOnMessage(ownMessageId: string, replyMessageId: string): Promise<IMessage>{
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
 }
 export default new Messageservice()

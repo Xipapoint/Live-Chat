@@ -3,7 +3,7 @@ import http from 'http';
 import { createNotification } from './wsMessageHandler';
 import { SetNotificationUserMessageRequestMessage } from '../rabbitmq/types/request/notification/NotificationMessage.types';
 
-export function handleConnection(wss: WebSocketServer, ws: WebSocket, req: http.IncomingMessage, RabbitMessage: SetNotificationUserMessageRequestMessage): void {
+export async function handleConnection(wss: WebSocketServer, ws: WebSocket, req: http.IncomingMessage, RabbitMessage: SetNotificationUserMessageRequestMessage): Promise<void> {
   const url = new URL(req.url as string, `http://${req.headers.host}`);
   const userId = url.searchParams.get('userId');
   
@@ -11,7 +11,13 @@ export function handleConnection(wss: WebSocketServer, ws: WebSocket, req: http.
     console.log("notification user id:", userId);
     
     (ws as any).userId = userId;
-    createNotification(wss, ws, RabbitMessage)
+    ws.on('message', async (data) => {
+      console.log('Received message from client:', data.toString());
+
+      const clientMessage = JSON.parse(data.toString());
+
+      await createNotification(wss, ws, RabbitMessage);
+    });
     console.log(`New client connected to room: ${userId}`);
   } else {
     console.log('New client connected without userId');

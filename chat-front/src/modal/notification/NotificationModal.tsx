@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNotifications } from '../../shared/hooks/notifications';
-import './NotificationModal.module.scss';
+import styles from './NotificationModal.module.scss';
 import { INotification } from '../../models/notification/notification.interface';
 
 
@@ -12,6 +12,7 @@ const NotificationModal: React.FC = () => {
 
   useEffect(() => {
     if (notifications.length > 0) {
+      
       const lastNotification = notifications[notifications.length - 1];
       setLatestNotification(lastNotification as INotification);
       setIsVisible(true);
@@ -29,8 +30,8 @@ const NotificationModal: React.FC = () => {
   }
 
   return (
-    <div className="notification-modal">
-      <div className="notification-content">
+    <div className={styles.notificationModal}>
+      <div className={styles.notificationContent}>
         <div style={{display: 'flex'}}>
             <h4>{latestNotification.senderFirstName}</h4>
             <h4>{latestNotification.senderLastName}</h4>

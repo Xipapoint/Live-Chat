@@ -1,6 +1,6 @@
-.notification-modal {
+.notificationModal {
     position: fixed;
-    top: 20px;
+    top: 550px;
     right: 20px;
     z-index: 1000;
     background-color: white;
@@ -10,14 +10,14 @@
     padding: 15px;
     transition: opacity 0.3s ease-in-out;
 
-    .notification-content h4 {
+    .notificationContent h4 {
       margin: 0;
       font-size: 18px;
     }
-    .notification-content p {
+    .notificationContent p {
       margin: 10px 0;
     }
-    .notification-content button {
+    .notificationContent button {
       background-color: #007bff;
       color: white;
       border: none;
@@ -26,7 +26,7 @@
       cursor: pointer;
     }
     
-    .notification-content button:hover {
+    .notificationContent button:hover {
       background-color: #0056b3;
     }
   }

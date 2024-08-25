@@ -6,6 +6,7 @@ import { server } from '..';
 import { handleConnection } from '../ws/connectionHandler';
 import { SetNotificationUserMessageRequestMessage } from './types/request/notification/NotificationMessage.types';
 import http from 'http';
+import { createNotification } from '../ws/wsMessageHandler';
 
 const rabbitMQ = {
   url: 'amqp://localhost',
@@ -31,16 +32,7 @@ class Consumer {
           const message: SetNotificationUserMessageRequestMessage = JSON.parse(messageContent);
           console.log(`[x] Received message: ${messageContent}`);
           try {
-            handleConnection(wss, ws, req, message)
-            // const handler = handlers[message.serviceType];
-            // if (!handler) {
-            //   throw new Error('Unknown service type');
-            // }
-            // this.channel!.sendToQueue(
-            //   msg.properties.replyTo,
-            //   Buffer.from(JSON.stringify(response)),
-            //   { correlationId: msg.properties.correlationId }
-            // );
+            await createNotification(wss, ws, message)
           } catch (error: any) {
             console.error('Error processing message:', error.message);
             this.channel!.sendToQueue(
@@ -50,7 +42,6 @@ class Consumer {
             );
             this.channel?.reject(msg, false)
           }
-          setInterval(() => this.channel?.ack(msg), 300000)
         }
       });
     } catch (error) {
@@ -61,3 +52,14 @@ class Consumer {
 }
 
 export default new Consumer();
+
+
+            // const handler = handlers[message.serviceType];
+            // if (!handler) {
+            //   throw new Error('Unknown service type');
+            // }
+            // this.channel!.sendToQueue(
+            //   msg.properties.replyTo,
+            //   Buffer.from(JSON.stringify(response)),
+            //   { correlationId: msg.properties.correlationId }
+            // );
