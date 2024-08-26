@@ -3,11 +3,12 @@ import { IChangeRoomNameRequestDTO } from '../dto/request/ChangeRoomRequestDTO';
 import Room, { IRoom } from '../models/roomModel';
 import producer from '../rabbitMQ/producer';
 import { IAllRoomsInterface } from '../dto/response/AllRoomsResponse.interface';
-import { mapRoomToAllRoomsInterface } from '../helpers/mappers/Mapper';
+import { mapMessagesToAllMessagesInterface, mapRoomToAllRoomsInterface } from '../helpers/mappers/Mapper';
 import Message, { IMessage } from '../models/messageModel';
 import messageService from './messageService';
 import { GetNamesResponse, GetUserResponse } from '../rabbitMQ/types/response/responseTypes';
 import { GetUserRequestMessage, GetNamesRequestMessage } from '../rabbitMQ/types/request/requestTypes';
+import { IMessageFieldsWithReplyResponse } from '../dto/response/IMessageFieldsWithReplyResponse.interface';
 class ChatService{
 
 
@@ -75,6 +76,10 @@ class ChatService{
     async getAllRooms(userId: string): Promise<IAllRoomsInterface[]>{
         try {
             const allRooms: IRoom[] = await Room.find({ users: { $in: userId } });
+            if(allRooms === null){
+                console.log("Rooms with this person dont exist");
+                throw new Error("Rooms with this person dont exist")
+            }
             const getNamesM: GetNamesRequestMessage = {
                 serviceType: 'getNames',
                 data: {
@@ -83,11 +88,6 @@ class ChatService{
             }
             const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
             console.log("names: ", secondFirstName, secondLastName);
-            
-            if(allRooms === null){
-                console.log("Rooms with this person dont exist");
-                throw new Error("Rooms with this person dont exist")
-            }
             const rooms = await mapRoomToAllRoomsInterface(allRooms, secondFirstName, secondLastName)
             console.log("rooms:", rooms);
             
@@ -99,14 +99,14 @@ class ChatService{
 
     }
 
-    async getMessagesByRoomId(roomId: string): Promise<IMessage[]> {
+    async getMessagesByRoomId(roomId: string): Promise<IMessageFieldsWithReplyResponse[]> {
         try {
             console.log("сообщения");
             
             const existingRoom = await Room.findById(roomId).populate('messages');
             if (!existingRoom) throw new Error("Room doesn't exist");
-            
-            return existingRoom.messages;
+            const messages = await mapMessagesToAllMessagesInterface(existingRoom.messages)
+            return messages
         } catch (error) {
             console.error(`Error getting messages for room ${roomId}:`, error);
             throw error;

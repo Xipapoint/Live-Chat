@@ -3,47 +3,63 @@ import Message from '../models/messageModel';
 import Room from '../models/roomModel';
 import { IMessage } from '../models/messageModel';
 import { IRoom } from '../models/roomModel';
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import producer from '../rabbitMQ/producer';
-import { SetNotificationUserMessageRequestMessage } from '../rabbitMQ/types/request/requestTypes';
+import { GetNamesRequestMessage, SetNotificationUserMessageRequestMessage } from '../rabbitMQ/types/request/requestTypes';
+import messageService from '../services/messageService';
+import { IMessageWithReplyResponse } from '../dto/response/MessageWithReplyResponse.interface';
+import { GetNamesResponse } from '../rabbitMQ/types/response/responseTypes';
 
 interface ParsedData {
   roomId: string;
   userId: string;
   message: string;
+  replyingMessageId: string,
+  isReplying: boolean
 }
 
 export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: string): Promise<void> {
   try {
     const parsedData: ParsedData = JSON.parse(data);
-    const { roomId, userId, message } = parsedData;
+    const { roomId, userId, message, replyingMessageId, isReplying } = parsedData;
     console.log(userId);
-    
-    const newMessage = new Message({ roomId, userId, message });
-    await newMessage.save();
 
     const room = await Room.findById(roomId);
     if (room) {
-      room.messages.push(newMessage);
-      room.lastMessage = newMessage;
+      const getNamesM: GetNamesRequestMessage = {
+        serviceType: 'getNames',
+        data: {
+            id:  userId
+        }
+      }
+      const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
+      const newMessage = isReplying ? 
+      await messageService.replyOnMessage(replyingMessageId, roomId, userId, message, secondFirstName, secondLastName) :
+      new Message({ roomId, userId, message })
+
+    const messageToPush = newMessage as (Document<unknown, {}, IMessage> & IMessage & Required<{
+      _id: Types.ObjectId;
+  }>) || (newMessage as IMessageWithReplyResponse).message
+      room.messages.push(messageToPush);
+      room.lastMessage = messageToPush;
       await room.save();
 
-      const broadcastData = JSON.stringify({...newMessage.toObject() });
+      const broadcastData = JSON.stringify({...messageToPush.toObject() });
 
       wss.clients.forEach(async (client) => {
         if (client.readyState === WebSocket.OPEN && (client as any).roomId === roomId) {
-          const setMessage: SetNotificationUserMessageRequestMessage = {
+          const setNotification: SetNotificationUserMessageRequestMessage = {
             serviceType: 'setNotificationUserMessage',
             data: {
-                message: newMessage.message,
-                userId: newMessage.userId.toString()
+                message: messageToPush.message,
+                userId: messageToPush.userId.toString()
             }
           }
-          console.log("notification", setMessage);
+          console.log("notification", setNotification);
           
           client.send(broadcastData);
-          await producer.publishMessage(setMessage)
+          await producer.publishMessage(setNotification)
         }
       });
     }
