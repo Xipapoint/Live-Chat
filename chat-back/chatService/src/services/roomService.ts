@@ -99,20 +99,6 @@ class ChatService{
 
     }
 
-    async getMessagesByRoomId(roomId: string): Promise<IMessageFieldsWithReplyResponse[]> {
-        try {
-            console.log("сообщения");
-            
-            const existingRoom = await Room.findById(roomId).populate('messages');
-            if (!existingRoom) throw new Error("Room doesn't exist");
-            const messages = await mapMessagesToAllMessagesInterface(existingRoom.messages)
-            return messages
-        } catch (error) {
-            console.error(`Error getting messages for room ${roomId}:`, error);
-            throw error;
-        }
-    }
-
     async getRoomInfo(roomId: string): Promise<string>{
         const existingRoom: IRoom | null = await Room.findById(roomId)
         if(!existingRoom) throw new Error("Room doesnt exist");
@@ -123,8 +109,7 @@ class ChatService{
         try{
             const existingRoom: IRoom | null = await Room.findById(roomId)
             if(!existingRoom) throw new Error("Room doesnt exist");
-            if(await existingRoom.deleteOne({_id: roomId})) return true
-            return false
+            return await existingRoom.deleteOne({_id: roomId})
         } catch(e){
             console.error(e)
             throw Error

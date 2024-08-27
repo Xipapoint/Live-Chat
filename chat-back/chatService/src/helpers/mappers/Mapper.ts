@@ -29,11 +29,13 @@ export const mapRoomToAllRoomsInterface = async (
   ): Promise<IMessageFieldsWithReplyResponse[]> => {
     const messagePromises = messages.map(async (message) => {
       let onReplyText: string | undefined
-      if(message.replyMessageId) onReplyText = (await messageService.findMessageById(message.replyMessageId)).message
+      if(typeof message.onReplyMessageId !== 'undefined') onReplyText = (await messageService.findMessageById(message.onReplyMessageId)).message
       return{
         _id: message._id,
-        replyMessageId: message.replyMessageId,
+        replyMessageId: message.onReplyMessageId,
         onReplyMessageText: onReplyText,
+        onReplyMessageFirstName: message.onReplyMessageFirstName,
+        onReplyMessageLastName: message.onReplyMessageLastName,
         roomId: message.roomId,
         userId: message.userId,
         message: message.message,

@@ -6,6 +6,7 @@ import $chat_api from '../../../http/chat.ts';
 import ChatNav from './chatWindowNav/ChatNav.tsx';
 import ChatMessage from './ChatMessage/ChatMessage.tsx';
 import { IMessageFieldsWithReplyResponse } from '../../dto/response/message/IMessageFieldsWithReplyResponse.interface.ts';
+import { ISendMessageWSRequestDTO } from '../../dto/request/SendMessageWSRequestDTO.ts';
 
 interface IChatCanvasProps {
   chat: IChatInterface,
@@ -16,8 +17,7 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
   const [messages, setMessages] = useState<IMessageFieldsWithReplyResponse[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
-  const [startX, setStartX] = useState<number | null>(null);
-  const [isSwiping, setIsSwiping] = useState<boolean>(false);
+  // const [isReplying, setIsReplying] = useState
   const [replyToMessage, setReplyToMessage] = useState<IMessage | null>(null)
 
   useEffect(() => {
@@ -78,8 +78,19 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
     if (newMessage.trim() && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const message: string = newMessage;
       const userId = localStorage.getItem('userId')
-
-      wsRef.current.send(JSON.stringify({ roomId: chat._id, userId, message }));
+      const isReplying: boolean = replyToMessage ? true : false
+      console.log(replyToMessage);
+      
+      const sendMessageRequest: ISendMessageWSRequestDTO = {
+        roomId: chat._id, 
+        userId: userId as string, 
+        message: message,
+        replyingMessageId: isReplying ? replyToMessage?._id : undefined,
+        isReplying: isReplying
+      }
+      console.log(sendMessageRequest.replyingMessageId);
+      
+      wsRef.current.send(JSON.stringify(sendMessageRequest));
       setNewMessage('');
     }
   };
@@ -90,48 +101,24 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
     }
   };
 
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setStartX(event.clientX);
-    setIsSwiping(true);
-  };
-  
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (isSwiping && startX !== null) {
-      const currentX = event.clientX;
-      const diff = currentX - startX;
-  
-      if (diff > 100) {
-        setIsSwiping(false);
-      }
-    }
-  };
-  
-  const handleMouseUp = () => {
-    setIsSwiping(false);
-    setStartX(null);
-  };
-  
-  const handleMouseLeave = () => {
-    setIsSwiping(false);
-    setStartX(null);
-  };
+ const handleSetReplyToMessage = (replyToMessage: IMessage | null) => {
+  setReplyToMessage(replyToMessage)
+ }
 
   
 
   return (
     <div className={styles.chat}>
       <ChatNav chatName={chat.name} roomId={chat._id}/>
-      <div className={styles.messages}
-      
-      
-      >
+      <div className={styles.messages}>
         {messages.map((message) => (
           <ChatMessage
-          replyMessageText={message.replyMessageId}
-          onMouseDown={(event: React.MouseEvent<HTMLDivElement>) => handleMouseDown(event)}
-          onMouseMove={(event: React.MouseEvent<HTMLDivElement>) => handleMouseMove(event)}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
+          replyingMessage={replyToMessage}
+          isMessageReplied={typeof message.replyMessageId !== 'undefined'}
+          replyMessageText={message.onReplyMessageText}
+          replyFirstName={message.onReplyMessageFirstName}
+          replyLastName={message.onReplyMessageLastName}
+          setReplayToMessage={handleSetReplyToMessage}
           message={message}
           key={message._id}
           text={message.message}

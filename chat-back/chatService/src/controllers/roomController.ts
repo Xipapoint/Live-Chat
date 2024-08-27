@@ -5,6 +5,7 @@ import { ICreateRoomRequestDTO } from '../dto/request/CreateRoomNameRequestDTO';
 import ChatService from '../services/roomService';
 import jwt from 'jsonwebtoken'
 import { BadRequestError } from '../errors/4__Error/BadRequestError.error';
+import messageService from '../services/messageService';
 class ChatController {
     chatService: IRoomServiceImpl;
 
@@ -65,7 +66,7 @@ class ChatController {
                 return;
             }
 
-            const messages = await ChatService.getMessagesByRoomId(roomId);
+            const messages = await messageService.getMessagesByRoomId(roomId);
             
             res.status(200).json(messages);
         } catch (error) {
@@ -81,8 +82,8 @@ class ChatController {
                 res.status(400).send('RoomId is required');
                 return;
             }
-            const messages = await ChatService.deleteRoomById(roomId);
-            res.status(200).json(true);
+            const result = await ChatService.deleteRoomById(roomId);
+            res.status(200).json(result);
         } catch (error) {
             next(error)
         }

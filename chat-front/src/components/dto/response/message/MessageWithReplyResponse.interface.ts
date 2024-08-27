@@ -1,11 +1,10 @@
-import { Types } from "mongoose";
 
 export interface IMessageWithReplyResponse{
-    _id: Types.ObjectId,
-    replyMessage: Types.ObjectId,
+    _id: string,
+    replyMessage: string,
     onReplyMessageText: string,
-    roomId: Types.ObjectId, 
-    userId: Types.ObjectId,
+    roomId: string, 
+    userId: string,
     message: string;
     timestamp: Date | ' ';
 }

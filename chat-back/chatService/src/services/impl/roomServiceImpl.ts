@@ -9,6 +9,5 @@ export interface IRoomServiceImpl{
     createRoom(roomData: ICreateRoomRequestDTO): Promise<IRoom>;
     changeRoomName(roomData: IChangeRoomNameRequestDTO, roomId: string): Promise<IRoom>
     getAllRooms(userId: string): Promise<IAllRoomsInterface[]>
-    getMessagesByRoomId(roomId: string): Promise<IMessageFieldsWithReplyResponse[]>
     getRoomInfo(roomId: string): Promise<string>
 }

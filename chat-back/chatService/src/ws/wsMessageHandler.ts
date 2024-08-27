@@ -15,7 +15,7 @@ interface ParsedData {
   roomId: string;
   userId: string;
   message: string;
-  replyingMessageId: string,
+  replyingMessageId?: string,
   isReplying: boolean
 }
 
@@ -35,7 +35,7 @@ export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: s
       }
       const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
       const newMessage = isReplying ? 
-      await messageService.replyOnMessage(replyingMessageId, roomId, userId, message, secondFirstName, secondLastName) :
+      await messageService.replyOnMessage(replyingMessageId as string, roomId, userId, message, secondFirstName, secondLastName) :
       new Message({ roomId, userId, message })
 
     const messageToPush = newMessage as (Document<unknown, {}, IMessage> & IMessage & Required<{
