@@ -61,7 +61,7 @@ const ChatFind: FC<IChatFindProps>  = ({ searchTerm, onSearchChange }) => {
         console.log('Room created uccessfully');
         closeModal()
       } else {
-        console.error('Failed to create room');
+        console.error('Failed to create room ');
         closeModal()
       }
     } catch (error) {
