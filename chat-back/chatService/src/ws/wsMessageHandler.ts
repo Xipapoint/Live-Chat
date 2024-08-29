@@ -24,7 +24,6 @@ export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: s
     const parsedData: ParsedData = JSON.parse(data);
     const { roomId, userId, message, replyingMessageId, isReplying } = parsedData;
     console.log(userId);
-
     const room = await Room.findById(roomId);
     if (room) {
       const getNamesM: GetNamesRequestMessage = {
@@ -34,15 +33,19 @@ export async function handleMessage(wss: WebSocketServer, ws: WebSocket, data: s
         }
       }
       const {secondFirstName, secondLastName} = await producer.publishMessage<GetNamesResponse>(getNamesM)
-      const newMessage = isReplying ? 
-      await messageService.replyOnMessage(replyingMessageId as string, roomId, userId, message, secondFirstName, secondLastName) :
-      new Message({ roomId, userId, message })
+      console.log("id сообщения на которые отвечают в функции handleMessage: ", replyingMessageId);
+      
+      const newMessage = isReplying
+      ? await messageService.replyOnMessage(replyingMessageId as string, roomId, userId, message, secondFirstName, secondLastName) 
+      : new Message({ roomId, userId, message })
 
-    const messageToPush = newMessage as (Document<unknown, {}, IMessage> & IMessage & Required<{
-      _id: Types.ObjectId;
-  }>) || (newMessage as IMessageWithReplyResponse).message
-      room.messages.push(messageToPush);
-      room.lastMessage = messageToPush;
+      const messageToPush: IMessage = 'onReplyMessageText' in newMessage 
+      ? (newMessage as IMessageWithReplyResponse).message 
+      : newMessage as IMessage;
+    
+    room.messages.push(messageToPush);
+    room.lastMessage = messageToPush;
+    
       await room.save();
 
       const broadcastData = JSON.stringify({...messageToPush.toObject() });

@@ -5,6 +5,25 @@
     cursor: pointer;
     user-select: none;
 
+      .replyMessage{
+        display: flex;
+        height: 50px;
+        flex-direction: column;
+        background-color: rgba(74, 236, 96, 0.7);
+        border-radius: 5px;
+        .replyMessageText{
+          font-weight: 600;
+
+          margin: 1px 0 1px 1px;
+          width: 100%;
+          height: 70%;
+        }
+        .author{
+          font-size: 14px;
+          margin: 0;
+        }
+      }
+
       .messageText {
         max-width: 60%;
         padding: 10px;
@@ -28,11 +47,13 @@
 
   
   .mine .messageText {
-    background-color: #dcf8c6; // Цвет фона для сообщений пользователя
+    color: white;
+    background-color: #6E00FF; // Цвет фона для сообщений пользователя
   }
   
   .theirs .messageText {
-    background-color: #c3c0ed; // Цвет фона для чужих сообщений
+    color: black;
+    background-color: #E7E7E7; // Цвет фона для чужих сообщений
   }
   
   

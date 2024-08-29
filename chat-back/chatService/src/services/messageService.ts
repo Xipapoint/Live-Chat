@@ -47,8 +47,9 @@ class Messageservice {
             
             const replyingMessage = new Message(
             { 
-                roomId: roomId, 
-                userId: userId, message: content, 
+                roomId: new Types.ObjectId(roomId), 
+                userId: new Types.ObjectId(userId), 
+                message: content, 
                 replyMessage: new Types.ObjectId(replyMessageId),
                 onReplyMessageId: replyMessageId ? new Types.ObjectId(replyMessageId) : undefined,
                 onReplyMessageFirstName: onReplyMessageFirstName, 

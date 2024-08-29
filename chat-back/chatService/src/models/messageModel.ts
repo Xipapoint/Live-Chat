@@ -14,7 +14,7 @@ interface IMessage extends Document {
 const messageSchema = new Schema<IMessage>({
   roomId: { type: Schema.Types.ObjectId, ref: 'Room' },
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
-  onReplyMessageId: {type: Schema.Types.ObjectId, ref: 'Message', required: false},
+  onReplyMessageId: { type: Schema.Types.ObjectId, ref: 'Message', required: false }, 
   onReplyMessageFirstName: { type: String, required: false },
   onReplyMessageLastName: { type: String, required: false },
   message: { type: String, required: true },

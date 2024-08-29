@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { createRef, FC, useEffect, useRef, useState } from 'react';
 import styles from './chatCanvas.module.scss';
 import { IChatInterface } from '../../../models/chat/chat.interface.ts';
 import { IMessage } from '../../../models/chat/message.interface.ts';
@@ -17,8 +17,8 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
   const [messages, setMessages] = useState<IMessageFieldsWithReplyResponse[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
-  // const [isReplying, setIsReplying] = useState
   const [replyToMessage, setReplyToMessage] = useState<IMessage | null>(null)
+  const messageRefs = useRef<Map<string, React.RefObject<HTMLDivElement>>>(new Map())
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -88,10 +88,12 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
         replyingMessageId: isReplying ? replyToMessage?._id : undefined,
         isReplying: isReplying
       }
-      console.log(sendMessageRequest.replyingMessageId);
+      console.log("id на сообщение ", sendMessageRequest.replyingMessageId);
+      console.log("is replying: ", isReplying);
       
       wsRef.current.send(JSON.stringify(sendMessageRequest));
       setNewMessage('');
+      setReplyToMessage(null)
     }
   };
 
@@ -103,6 +105,26 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
 
  const handleSetReplyToMessage = (replyToMessage: IMessage | null) => {
   setReplyToMessage(replyToMessage)
+  if(replyToMessage && messageRefs.current.has(replyToMessage._id)){
+    const ref = messageRefs.current.get(replyToMessage._id)
+    ref?.current?.scrollIntoView()
+  }
+ }
+
+ const handleScrollToMessage = (replyToMessage: IMessage) => {
+  try {
+    if(messageRefs.current.has(replyToMessage._id)){
+      const ref = messageRefs.current.get(replyToMessage._id)
+      ref?.current?.scrollIntoView()
+      console.log("trying to scroll");
+      console.log(messageRefs);
+      
+    }
+  } catch (error) {
+    console.log(error);
+    
+  }
+
  }
 
   
@@ -111,20 +133,27 @@ const ChatCanvas: FC<IChatCanvasProps> = ({ chat, setLastMessage }) => {
     <div className={styles.chat}>
       <ChatNav chatName={chat.name} roomId={chat._id}/>
       <div className={styles.messages}>
-        {messages.map((message) => (
-          <ChatMessage
-          replyingMessage={replyToMessage}
-          isMessageReplied={typeof message.replyMessageId !== 'undefined'}
-          replyMessageText={message.onReplyMessageText}
-          replyFirstName={message.onReplyMessageFirstName}
-          replyLastName={message.onReplyMessageLastName}
-          setReplayToMessage={handleSetReplyToMessage}
-          message={message}
-          key={message._id}
-          text={message.message}
-          isMine={localStorage.getItem('userId') === message.userId}
-        />
-        ))}
+      {messages.map((message) => {
+          const ref = createRef<HTMLDivElement>();
+          messageRefs.current.set(message._id, ref);
+
+          return (
+            <ChatMessage
+              scrollToMessage={handleScrollToMessage}
+              key={message._id}
+              messageRef={ref} 
+              replyingMessage={replyToMessage}
+              isMessageReplied={typeof message.replyMessageId !== "undefined"}
+              replyMessageText={message.onReplyMessageText}
+              replyFirstName={message.onReplyMessageFirstName}
+              replyLastName={message.onReplyMessageLastName}
+              setReplayToMessage={handleSetReplyToMessage}
+              message={message}
+              text={message.message}
+              isMine={localStorage.getItem("userId") === message.userId}
+            />
+          );
+        })}
       </div>
       {replyToMessage && (
         <div className={styles.replyBlock}>
