@@ -13,14 +13,18 @@ import { Bounce, ToastContainer } from 'react-toastify';
 interface ILoginFormProps {}
 
 const LoginForm: React.FC<ILoginFormProps> = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    nickname: '',
+    email: '',
+    password: '',
+  });
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [formErrors, setFormErrors] = useState({
+    nickname: '',
+    email: '',
+    password: '',
+  });
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const {login} = authSlice.actions
